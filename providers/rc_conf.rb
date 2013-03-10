@@ -15,61 +15,61 @@
 #
 
 action :enable do
-  if @is_absent || @is_modified
+  if is_absent || is_modified
     # Add
-    @flags[@new_resource.name] = @new_resource.flags
+    flags[new_resource.name] = new_resource.flags
     # write
     write_rc_conf_local_chef
-    @new_resource.updated_by_last_action(true)
+    new_resource.updated_by_last_action(true)
   else
-    Chef::Log.info("openbsd_rc_conf: #{@new_resource.name} is already enabled")
+    Chef::Log.info("openbsd_rc_conf: #{new_resource.name} is already enabled")
   end
 end
 
 action :disable do
-  if !@is_absent
+  if !is_absent
     # remove
-    @flags.delete(@new_resource.name)
-    Chef::Log.info "disable? #{@flags.inspect}"
+    flags.delete(new_resource.name)
+    Chef::Log.info "disable? #{flags.inspect}"
     # write
     write_rc_conf_local_chef
-    @new_resource.updated_by_last_action(true)
+    new_resource.updated_by_last_action(true)
   else
-    Chef::Log.info("openbsd_rc_conf: #{@new_resource.name} is already disabled")
+    Chef::Log.info("openbsd_rc_conf: #{new_resource.name} is already disabled")
   end
 end
 
 def load_current_resource
-  raise "only for OpenBSD" if node[:platform] != "openbsd"
-  @current_resource = Chef::Resource::OpenbsdPkgScript.new(@new_resource.name)
+  raise "only for OpenBSD" if node["platform"] != "openbsd"
+  current_resource = Chef::Resource::OpenbsdPkgScript.new(new_resource.name)
 
-  @flags = {}
-  if ::File.exists?(@new_resource.rc_conf_local_chef_path)
-    ::File.open(@new_resource.rc_conf_local_chef_path).each_line do |l|
-      if @new_resource.no_suffix
+  flags = {}
+  if ::File.exists?(new_resource.rc_conf_local_chef_path)
+    ::File.open(new_resource.rc_conf_local_chef_path).each_line do |l|
+      if new_resource.no_suffix
         regexp = /^(.*)="(.*)"$/
       else
         regexp = /^(.*)_flags="(.*)"$/
       end
       if l.strip =~ regexp
-        @flags[$1] = $2
+        flags[$1] = $2
       end
     end
   end
-  @is_absent = !@flags.has_key?(@new_resource.name)
-  @is_modified = @new_resource.flags != @flags[@new_resource.name]
-  Chef::Log.info "openbsd_rc_conf[#{@new_resource.name}]: is_absent? #{@is_absent}, #{@flags}"
-  Chef::Log.info "openbsd_rc_conf[#{@new_resource.name}]: is_modified? #{@is_absent}, #{@flags}"
-  @current_resource
+  is_absent = !flags.has_key?(new_resource.name)
+  is_modified = new_resource.flags != flags[new_resource.name]
+  Chef::Log.info "openbsd_rc_conf[#{new_resource.name}]: is_absent? #{is_absent}, #{flags}"
+  Chef::Log.info "openbsd_rc_conf[#{new_resource.name}]: is_modified? #{is_absent}, #{flags}"
+  current_resource
 end
 
 protected
 
 def write_rc_conf_local_chef
   # 空の場合は空ファイルにする
-  ::File.open(@new_resource.rc_conf_local_chef_path, "w") { |f|
-    @flags.sort.each { |p, flag|
-      if @new_resource.no_suffix
+  ::File.open(new_resource.rc_conf_local_chef_path, "w") { |f|
+    flags.sort.each { |p, flag|
+      if new_resource.no_suffix
         str = %Q[#{p}="#{flag}"]
       else
         str = %Q[#{p}_flags="#{flag}"]

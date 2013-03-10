@@ -13,6 +13,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-default[:openbsd][:pkg_scripts] = "/etc/pkg_scripts"
-default[:openbsd][:rc_conf_local_chef_path] = "/etc/rc.conf.local.chef"
-default[:openbsd][:rc_conf_local_path] = "/etc/rc.conf.local"
+default["openbsd"]["pkg_scripts"] = "/etc/pkg_scripts"
+default["openbsd"]["rc_conf_local_chef_path"] = "/etc/rc.conf.local.chef"
+default["openbsd"]["rc_conf_local_path"] = "/etc/rc.conf.local"

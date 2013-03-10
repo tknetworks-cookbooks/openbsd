@@ -21,8 +21,8 @@ end
 
 template "/etc/pf.conf" do
   owner "root"
-  group node[:etc][:passwd][:root][:gid]
+  group node["etc"]["passwd"]["root"]["gid"]
   mode 0600
-  source "pf.conf"
+  source "pf.conf.erb"
   notifies :run, "execute[pfctl-reload]"
 end

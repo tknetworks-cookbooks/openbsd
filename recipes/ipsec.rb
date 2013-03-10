@@ -22,9 +22,9 @@ sysctl "net.inet.gre.allow" do
 end
 
 template "/etc/ipsec.conf" do
-  source "ipsec.conf"
+  source "ipsec.conf.erb"
   mode 0600
   owner "root"
-  group node[:etc][:passwd][:root][:gid]
+  group node["etc"]["passwd"]["root"]["gid"]
   notifies :run, "execute[reload-ipsec-conf]"
 end

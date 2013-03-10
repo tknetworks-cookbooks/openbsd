@@ -15,5 +15,6 @@
 #
 
 actions :enable, :disable, :start
+default_action :enable
 attribute :name, :kind_of => String, :name_attribute => true
 attribute :pkg_scripts_path, :kind_of => String, :default => "/etc/pkg_scripts"

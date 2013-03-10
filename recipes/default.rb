@@ -14,12 +14,12 @@
 # limitations under the License.
 #
 
-return if node[:platform] != "openbsd"
+return if node["platform"] != "openbsd"
 
-rc = node[:openbsd][:rc_conf_local_path]
+rc = node["openbsd"]["rc_conf_local_path"]
 
 execute "openbsd-add-manip-pkg-script" do
-  oneliner = "[ -f /etc/pkg_scripts ] && for _r in `cat #{node[:openbsd][:pkg_scripts]}`; do pkg_scripts=\"${pkg_scripts} ${_r}\"; done"
+  oneliner = "[ -f /etc/pkg_scripts ] && for _r in `cat #{node["openbsd"]["pkg_scripts"]}`; do pkg_scripts=\"${pkg_scripts} ${_r}\"; done"
   command "echo >> #{rc}; echo \"# DO NOT APPEND ANY LINES BELOW\" >> #{rc}; echo '#{oneliner}' >> #{rc}"
   not_if do
     ::File.exists?("/etc/rc.conf.local") && 
@@ -30,7 +30,7 @@ execute "openbsd-add-manip-pkg-script" do
 end
 
 execute "openbsd-add-manip-rc-local-chef" do
-  oneliner = "[ -f #{node[:openbsd][:rc_conf_local_chef_path]} ] && . #{node[:openbsd][:rc_conf_local_chef_path]}"
+  oneliner = "[ -f #{node["openbsd"]["rc_conf_local_chef_path"]} ] && . #{node["openbsd"]["rc_conf_local_chef_path"]}"
   command "echo >> #{rc}; echo \"# DO NOT APPEND ANY LINES BELOW\" >> #{rc}; echo '#{oneliner}' >> #{rc}"
   not_if do
     ::File.exists?("/etc/rc.conf.local") && 

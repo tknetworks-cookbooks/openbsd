@@ -19,8 +19,8 @@ openbsd_ipsec "passive"
 
 template "/etc/pf_ipsec.conf" do
   owner "root"
-  group node[:etc][:passwd][:root][:gid]
+  group node["etc"]["passwd"]["root"]["gid"]
   mode 0600
-  source "pf_ipsec_responder.conf"
+  source "pf_ipsec_responder.conf.erb"
   notifies :run, "execute[pfctl-reload]"
 end
