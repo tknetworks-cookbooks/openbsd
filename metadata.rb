@@ -6,4 +6,7 @@ long_description IO.read(File.join(File.dirname(__FILE__), 'README.md'))
 version          "0.0.2"
 name             "openbsd"
 supports         "openbsd"
-depends          "sysctl"
+
+%w{sysctl chef-openbsd}.each do |dep|
+  depends dep
+end
