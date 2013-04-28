@@ -13,20 +13,19 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-require 'chef/mixin/shell_out'
+require 'chefspec'
 
-include_recipe "openbsd::pf"
+describe 'openbsd::default' do
+  let (:chef_run) {
+    ChefSpec::ChefRunner.new do |node|
+      node.automatic_attrs['platform'] = 'openbsd'
+    end.converge 'openbsd::default'
+  }
 
-sysctl "net.inet.gre.allow" do
-  value 1
-  comment "Enable GRE"
-  immediately true
-end
-
-template "/etc/ipsec.conf" do
-  source "ipsec.conf.erb"
-  mode 0600
-  owner "root"
-  group node["etc"]["passwd"]["root"]["gid"]
-  notifies :run, "execute[reload-ipsec-conf]"
+  it 'should disable inetd, sndiod service' do
+    %w{inetd sndiod}.each do |s|
+      expect(chef_run).to disable_service s
+      expect(chef_run).to stop_service s
+    end
+  end
 end

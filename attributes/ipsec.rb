@@ -14,6 +14,6 @@
 # limitations under the License.
 #
 # must be set via role
-default["openbsd"]["ipsec"]["secret"] = ""
+default["openbsd"]["ipsec"]["psk"] = ""
 default["openbsd"]["ipsec"]["gw_hostname"] = ""
 default["openbsd"]["ipsec"]["gw_addr"] = ""

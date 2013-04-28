@@ -20,7 +20,7 @@ define :openbsd_interface,
        :dhcp    => false,
        :tunnel  => nil,
        :inner   => nil,
-       "config"  => nil,
+       :config  => nil,
        :rdomain => 0,
        :tunneldomain => 0,
        :extra_commands => [] do
@@ -30,37 +30,37 @@ define :openbsd_interface,
     raise "openvpn_interface is only for OpenBSD"
   end
 
-  if (not params["name"] =~ /^(gre|enc)/) && params["inet"].nil? && params["inet6"].nil?
+  if (not params[:name] =~ /^(gre|enc)/) && params[:inet].nil? && params[:inet6].nil?
     raise "ipv4 or ipv6 address required"
   end
 
-  if params["name"] =~ /^gre/ && params["inner"].nil?
+  if params[:name] =~ /^gre/ && params[:inner].nil?
     raise "inner address required"
   end
 
   begin
-    t = resources("template[/etc/hostname.#{params["name"]}")
+    t = resources("template[/etc/hostname.#{params[:name]}")
   rescue
-    t = template "/etc/hostname.#{params["name"]}" do
+    t = template "/etc/hostname.#{params[:name]}" do
           owner "root"
           group node["etc"]["passwd"]["root"]["gid"]
           mode  0640
           variables({
-            "inet"   => params["inet"],
-            "inet6"  => params["inet6"],
-            "dhcp"   => params["dhcp"],
-            "inner"  => params["inner"],
-            "rdomain" => params["rdomain"],
-            "tunnel"  => params["tunnel"],
-            "config"  => params["config"],
-            "tunneldomain"   => params["tunneldomain"],
-            "extra_commands" => params["extra_commands"]
+            "inet"   => params[:inet],
+            "inet6"  => params[:inet6],
+            "dhcp"   => params[:dhcp],
+            "inner"  => params[:inner],
+            "rdomain" => params[:rdomain],
+            "tunnel"  => params[:tunnel],
+            "config"  => params[:config],
+            "tunneldomain"   => params[:tunneldomain],
+            "extra_commands" => params[:extra_commands]
           })
-          source case params["name"]
+          source case params[:name]
                  when /^enc/
-                   "hostname.enc.if"
+                   "hostname.enc.if.erb"
                  else
-                   "hostname.if"
+                   "hostname.if.erb"
                  end
         end
   end
@@ -74,11 +74,11 @@ define :openbsd_ike,
        :peer  => 'any',
        :psk   => nil do
 
-  if %w{mode from to psk}.any? { |k| params[k].nil? }
+  if %w{mode from to psk}.any? { |k| params[k.to_sym].nil? }
     raise "mode, from, to, psk is required"
   end
 
-  unless %w{passive active dynamic}.any? { |k| params["mode"] == k }
+  unless %w{passive active dynamic}.any? { |k| params[:mode] == k }
     raise "mode must be 'passive', 'active', or 'dynamic'"
   end
 
@@ -93,7 +93,7 @@ define :openbsd_ike,
           variables(
             "rules" => []
           )
-          source "ipsec_chef.conf"
+          source "ipsec_chef.conf.erb"
           notifies :run, "execute[reload-ipsec-conf]"
         end
   end
@@ -101,8 +101,8 @@ define :openbsd_ike,
 end
 
 define :openbsd_reload_ipsec_conf, :rdomain => 0 do
-  rdomain = params["rdomain"]
-  execute params["name"] do
+  rdomain = params[:rdomain]
+  execute params[:name] do
     extend Chef::Mixin::ShellOut
     if rdomain == 0
       command "/sbin/ipsecctl -f /etc/ipsec.conf"
@@ -117,21 +117,23 @@ define :openbsd_reload_ipsec_conf, :rdomain => 0 do
 end
 
 define :openbsd_ipsec do
-  unless %w{passive active dynamic}.any? { |k| params["name"] == k }
+  unless %w{passive active dynamic}.any? { |k| params[:name] == k }
     raise "name must be 'passive', 'active', or 'dynamic'"
   end
 
   # retrieve IPsec configurations from databag
   begin
-    ipsec_conf = data_bag_item("ipsec", node["openbsd"]["ipsec"]["gw_hostname"]).find_all { |e|
+    gw_hostname = node["openbsd"]["ipsec"]["gw_hostname"]
+
+    ipsec_conf = data_bag_item("ipsec", gw_hostname).find_all { |e|
       e.first != "id"
     }
+
     ipsec_conf.each do |conf|
       my, remote = conf.last.partition { |k, v| k == node["fqdn"] }.map { |c| c.flatten }
 
       # 自分が含まれていない場合は飛ばす
       if my.empty?
-        Chef::Log.info "#{node["fqdn"]} is not found. skipped."
         next
       end
       if remote.empty?
@@ -145,8 +147,8 @@ define :openbsd_ipsec do
 
       Chef::Log.info "configuring #{my.first} -> #{remote.first}"
 
-      ipsec_mode = params["name"]
-      mypeer = params["peer"]
+      ipsec_mode = params[:name]
+      mypeer = params[:peer]
 
       openbsd_reload_ipsec_conf "reload-ipsec-conf" do
         rdomain my.last["rdomain"] if my.last["rdomain"]
@@ -175,21 +177,41 @@ define :openbsd_ipsec do
         openbsd_interface enc_if.first do
           rdomain my.last["rdomain"]
         end
-        Chef::Log.info("rdomain is enabled. executing isakmpd w/ rdomain in rc is up to you.")
+
+        # Add lines
+        Chef::Log.info("rdomain is enabled. Add lines to execute isakmpd w/ rdomain.")
+        execute "add-isakmpd-rdomain-#{my.last["rdomain"]}" do
+          rdomain = my.last["rdomain"]
+          oneliner = %Q[route -T #{rdomain} exec isakmpd -K -v]
+          command %Q[echo '#{oneliner}' >> /etc/rc.local]
+          not_if do
+            ::File.open("/etc/rc.local").readlines.any? { |l|
+              l.start_with?(oneliner)
+            }
+          end
+        end
+
+        execute "add-ipsecctl-rdomain-#{my.last["rdomain"]}" do
+          rdomain = my.last["rdomain"]
+          oneliner = %Q[route -T #{rdomain} exec ipsecctl -f /etc/ipsec.conf]
+          command %Q[echo '#{oneliner}' >> /etc/rc.local]
+          not_if do
+            ::File.open("/etc/rc.local").readlines.any? { |l|
+              l.start_with?(oneliner)
+            }
+          end
+        end
       else
-        openbsd_rc_conf "isakmpd" do
-          flags "-K -v"
-        end
-        openbsd_rc_conf "ipsec" do
-          flags "YES"
-          no_suffix true
-        end
-        openbsd_pkg_script "isakmpd" do
+        service "isakmpd" do
+          parameters({:flags => "-K -v"})
           action [:enable, :start]
+        end
+        service "ipsec" do
+          action :enable
         end
       end
     end
   rescue => e
-    Chef::Log.info("Could not load data bag 'ipsec', #{node["hostname"]}, this is optional, moving on... reason: #{e}")
+    Chef::Log.info("Could not load data bag 'ipsec', #{gw_hostname}, this is optional, moving on... reason: #{e}")
   end
 end

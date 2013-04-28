@@ -13,20 +13,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-require 'chef/mixin/shell_out'
+require 'minitest/spec'
 
-include_recipe "openbsd::pf"
-
-sysctl "net.inet.gre.allow" do
-  value 1
-  comment "Enable GRE"
-  immediately true
-end
-
-template "/etc/ipsec.conf" do
-  source "ipsec.conf.erb"
-  mode 0600
-  owner "root"
-  group node["etc"]["passwd"]["root"]["gid"]
-  notifies :run, "execute[reload-ipsec-conf]"
+describe_recipe 'openbsd::carp' do
+  it 'sets net.inet.carp.preempt=1' do
+    value = 'net.inet.carp.preempt=1'
+    file("/etc/sysctl.conf").must_include value
+    assert_sh "[ \"x`sysctl net.inet.carp.preempt`\" = 'x#{value}' ]"
+  end
 end
