@@ -53,6 +53,15 @@ ike dynamic esp proto gre from 10.7.43.10/32 to 10.7.43.2/32 peer #{chef_run.nod
       expect(chef_run).to create_file_with_content '/etc/hostname.gre1', "tunnel 10.7.43.10 10.7.43.2
 10.7.50.10 10.7.50.2"
     end
+
+    it 'should enable/start isakmpd' do
+      expect(chef_run).to start_service 'isakmpd'
+      expect(chef_run).to enable_service 'isakmpd'
+    end
+
+    it 'should enable ipsec' do
+      expect(chef_run).to enable_service 'ipsec'
+    end
   end
 
   context 'with rdomain 1' do
