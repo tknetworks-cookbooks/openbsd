@@ -13,15 +13,16 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-require 'spec_helper'
+require 'chefspec'
 
-describe 'openbsd::default' do
-  include_context 'openbsd'
-  it 'should disable inetd, sndiod service' do
-    chef_run.converge 'openbsd::default'
-    %w{inetd sndiod}.each do |s|
-      expect(chef_run).to disable_service s
-      expect(chef_run).to stop_service s
+shared_context 'openbsd' do
+  let (:chef_run) {
+    ChefSpec::ChefRunner.new(
+      :step_into => %w{openbsd_ipsec openbsd_interface openbsd_ike openbsd_reload_ipsec_conf},
+      :log_level => :debug
+    ) do |node|
+      node.automatic_attrs['platform'] = 'openbsd'
+      node.set['etc']['passwd']['root']['gid'] = 0
     end
-  end
+  }
 end

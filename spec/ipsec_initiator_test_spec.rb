@@ -13,18 +13,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-require 'chefspec'
+require 'spec_helper'
 
 describe 'openbsd::ipsec_initiator_test' do
-  let (:chef_run) {
-    ChefSpec::ChefRunner.new(
-      :step_into => %w{openbsd_ipsec openbsd_interface openbsd_ike openbsd_reload_ipsec_conf},
-      :log_level => :debug
-    ) do |node|
-      node.automatic_attrs['platform'] = 'openbsd'
-      node.set['etc']['passwd']['root']['gid'] = 0
-    end
-  }
+  include_context 'openbsd'
 
   shared_examples_for 'ipsec{,_chef}.conf' do
     it 'should create /etc/ipsec{,_chef}.conf' do
