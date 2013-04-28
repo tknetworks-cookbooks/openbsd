@@ -1,6 +1,6 @@
 source 'https://rubygems.org'
 
-gem 'chef',     '~> 10.0'
+gem 'chef'
 gem 'rake'
 gem 'foodcritic'
 gem 'chefspec'
