@@ -41,10 +41,3 @@ end
 def teardown_foodcritic_sandbox(sandbox_root)
   rm_rf sandbox_root
 end
-
-begin
-  require 'kitchen/rake_tasks'
-  Kitchen::RakeTasks.new
-rescue LoadError
-  puts ">>>>> Kitchen gem not loaded, omitting tasks" unless ENV['CI']
-end
