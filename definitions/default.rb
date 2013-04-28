@@ -179,7 +179,7 @@ define :openbsd_ipsec do
         end
 
         # Add lines
-        Chef::Log.info("rdomain is enabled. Add lines to execute isakmpd w/ rdomain.")
+        Chef::Log.info("rdomain is enabled. Add lines to execute isakmpd and ipsec w/ rdomain.")
         execute "add-isakmpd-rdomain-#{my.last["rdomain"]}" do
           rdomain = my.last["rdomain"]
           oneliner = %Q[route -T #{rdomain} exec isakmpd -K -v]
