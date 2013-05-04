@@ -13,10 +13,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+require 'minitest/spec'
 
-actions :enable, :disable
-default_action :enable
-attribute :name, :kind_of => String, :name_attribute => true
-attribute :flags, :kind_of => String
-attribute :no_suffix, :kind_of => [TrueClass, FalseClass], :default => false
-attribute :rc_conf_local_chef_path, :kind_of => String, :default => "/etc/rc.conf.local.chef"
+describe_recipe 'openbsd::carp' do
+  it 'sets net.inet.carp.preempt=1' do
+    value = 'net.inet.carp.preempt=1'
+    file("/etc/sysctl.conf").must_include value
+    assert_sh "[ \"x`sysctl net.inet.carp.preempt`\" = 'x#{value}' ]"
+  end
+end

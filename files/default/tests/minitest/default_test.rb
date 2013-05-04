@@ -13,20 +13,22 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-require 'chef/mixin/shell_out'
+require 'minitest/spec'
 
-include_recipe "openbsd::pf"
+describe_recipe 'openbsd::default' do
+  it "disables inetd service" do
+    service("inetd").wont_be_enabled
+  end
 
-sysctl "net.inet.gre.allow" do
-  value 1
-  comment "Enable GRE"
-  immediately true
-end
+  it "stops inetd service" do
+    service("inetd").wont_be_running
+  end
 
-template "/etc/ipsec.conf" do
-  source "ipsec.conf.erb"
-  mode 0600
-  owner "root"
-  group node["etc"]["passwd"]["root"]["gid"]
-  notifies :run, "execute[reload-ipsec-conf]"
+  it "disables sndiod service" do
+    service("sndiod").wont_be_enabled
+  end
+
+  it "stops sndiod service" do
+    service("sndiod").wont_be_running
+  end
 end

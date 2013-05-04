@@ -1,0 +1,25 @@
+{
+  "id": "ipsec-gw",
+  "vpn1": {
+    "ipsec-gw.example.org": {
+      "lo1": "10.7.43.2",
+      "gre1": "10.7.50.2"
+    },
+    "vagrant-openbsd1": {
+      "lo1": "10.7.43.10",
+      "gre1": "10.7.50.10",
+      "enc1": "up",
+      "rdomain": 1
+    }
+  },
+  "vpn2": {
+    "ipsec-gw.example.org": {
+      "lo2": "10.7.43.3",
+      "gre2": "10.7.50.3"
+    },
+    "vagrant-openbsd2": {
+      "lo1": "10.7.43.11",
+      "gre1": "10.7.50.11"
+    }
+  }
+}

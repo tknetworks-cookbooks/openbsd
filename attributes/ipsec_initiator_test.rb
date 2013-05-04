@@ -13,20 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-require 'chef/mixin/shell_out'
-
-include_recipe "openbsd::pf"
-
-sysctl "net.inet.gre.allow" do
-  value 1
-  comment "Enable GRE"
-  immediately true
-end
-
-template "/etc/ipsec.conf" do
-  source "ipsec.conf.erb"
-  mode 0600
-  owner "root"
-  group node["etc"]["passwd"]["root"]["gid"]
-  notifies :run, "execute[reload-ipsec-conf]"
-end
+# must be set via role
+default["openbsd"]["ipsec"]["psk"] = "SECRET"
+default["openbsd"]["ipsec"]["gw_hostname"] = "ipsec-gw"
+default["openbsd"]["ipsec"]["gw_addr"] = "192.168.67.2"

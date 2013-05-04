@@ -13,20 +13,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-require 'chef/mixin/shell_out'
+require 'minitest/spec'
 
-include_recipe "openbsd::pf"
-
-sysctl "net.inet.gre.allow" do
-  value 1
-  comment "Enable GRE"
-  immediately true
-end
-
-template "/etc/ipsec.conf" do
-  source "ipsec.conf.erb"
-  mode 0600
-  owner "root"
-  group node["etc"]["passwd"]["root"]["gid"]
-  notifies :run, "execute[reload-ipsec-conf]"
+describe_recipe 'openbsd::pf' do
+  it 'creates /etc/pf.conf' do
+    pfconf = file("/etc/pf.conf")
+    pfconf.must_exist.with(:mode, "600").with(:owner, "root").with(:group, "wheel")
+    pfconf.must_include %Q[$OpenBSD: pf.conf,v 1.50 2011/04/28 00:19:42 mikeb Exp $]
+  end
 end

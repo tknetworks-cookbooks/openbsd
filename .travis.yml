@@ -1,0 +1,4 @@
+language: ruby
+rvm:
+  - 1.9.3
+script: bundle exec berks install && pushd ..; for c in ${HOME}/.berkshelf/cookbooks/*; do ln -s ${c} $(basename ${c%-*}); done; popd;  bundle exec rake

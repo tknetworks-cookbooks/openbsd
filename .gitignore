@@ -1,0 +1,4 @@
+*.swp
+Gemfile.lock
+Berksfile.lock
+.vagrant
