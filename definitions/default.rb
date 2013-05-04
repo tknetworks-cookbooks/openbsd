@@ -122,6 +122,7 @@ define :openbsd_ipsec do
   end
 
   # retrieve IPsec configurations from databag
+  configured = false
   begin
     gw_hostname = node["openbsd"]["ipsec"]["gw_hostname"]
 
@@ -139,6 +140,9 @@ define :openbsd_ipsec do
       if remote.empty?
         raise "something seems to be wrong."
       end
+
+      configured = true
+
       my_gre = get_gre(my.last)
       my_lo = get_loopback(my.last)
       remote_gre = get_gre(remote.last)
@@ -210,6 +214,10 @@ define :openbsd_ipsec do
           action :enable
         end
       end
+    end
+
+    if not configured
+      Chef::Log.info("No configure found for #{node['fqdn']}")
     end
   rescue => e
     Chef::Log.info("Could not load data bag 'ipsec', #{gw_hostname}, this is optional, moving on... reason: #{e}")
