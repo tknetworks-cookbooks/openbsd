@@ -13,16 +13,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-require 'spec_helper'
+require 'minitest/spec'
 
-describe 'openbsd::pf' do
-  include_context 'openbsd'
-
-  before do
-    chef_run.converge('openbsd::pf')
-  end
-
-  it 'should create /etc/pf.conf' do
-    expect(chef_run).to create_file_with_content '/etc/pf.conf', '$OpenBSD: pf.conf,v 1.50 2011/04/28 00:19:42 mikeb Exp $'
+describe_recipe 'openbsd::pf' do
+  it 'creates /etc/pf.conf' do
+    pfconf = file("/etc/pf.conf")
+    pfconf.must_exist.with(:mode, "600").with(:owner, "root").with(:group, "wheel")
+    pfconf.must_include %Q[$OpenBSD: pf.conf,v 1.50 2011/04/28 00:19:42 mikeb Exp $]
   end
 end
