@@ -15,7 +15,7 @@
 #
 require 'minitest/spec'
 
-describe_recipe 'openbsd::ipsec_initiator' do
+describe_recipe 'openbsd::ipsec_initiator_nordomain_test' do
   it 'sets net.inet.gre.allow=1' do
     value = 'net.inet.gre.allow=1'
     file("/etc/sysctl.conf").must_include value
