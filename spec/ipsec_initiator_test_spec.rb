@@ -22,7 +22,7 @@ describe 'openbsd::ipsec_initiator_test' do
     it 'should create /etc/ipsec{,_chef}.conf' do
       expect(chef_run).to create_file_with_content '/etc/ipsec.conf', 'include "/etc/ipsec_chef.conf"'
       expect(chef_run).to create_file_with_content '/etc/ipsec_chef.conf', "# chefspec.local -> ipsec-gw.example.org
-ike dynamic esp proto gre from 10.7.43.10/32 to 10.7.43.2/32 peer #{chef_run.node['openbsd']['ipsec']['gw_addr']} psk SECRET"
+ike dynamic esp proto gre from 10.7.43.10/32 to 10.7.43.2/32 peer #{chef_run.node['openbsd']['ipsec']['gw_addr']} psk #{chef_run.node['openbsd']['ipsec']['psk']}"
     end
   end
 
