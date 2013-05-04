@@ -13,11 +13,4 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-require 'spec_helper'
-
-describe 'openbsd::ipsec_responder' do
-  include_context 'openbsd'
-  it 'should do something' do
-    pending 'Your recipe examples go here.'
-  end
-end
+include_recipe "openbsd::ipsec_responder"

@@ -37,4 +37,16 @@ Vagrant.configure("2") do |config|
       chef.add_recipe "minitest-handler-cookbook"
     end
   end
+
+  config.vm.define :'ipsec-gw' do |openbsd1|
+    openbsd1.vm.hostname = "ipsec-gw.example.org"
+    openbsd1.vm.network :private_network, ip: "192.168.67.2", netmask: "255.255.255.0"
+
+    openbsd1.vm.provision :chef_solo do |chef|
+      setup_chefsolo(chef)
+      chef.add_recipe "openbsd::carp"
+      chef.add_recipe "openbsd::ipsec_responder_test"
+      chef.add_recipe "minitest-handler-cookbook"
+    end
+  end
 end
