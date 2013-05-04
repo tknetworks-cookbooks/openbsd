@@ -17,6 +17,17 @@ Vagrant.configure("2") do |config|
   config.vm.define :openbsd1 do |openbsd1|
     openbsd1.vm.hostname = "vagrant-openbsd1"
     openbsd1.vm.network :private_network, ip: "192.168.67.10", netmask: "255.255.255.0"
+    openbsd1.vm.network :private_network, ip: "192.168.67.20", netmask: "255.255.255.0"
+
+    openbsd1.vm.provision :shell do |s|
+      s.inline = <<SCRIPT
+grep -q 'rdomain 1' /etc/hostname.em2 || {
+  mv /etc/hostname.em2{,.orig}
+  echo 'rdomain 1' | cat - /etc/hostname.em2.orig > /etc/hostname.em2
+  sh /etc/netstart em2
+}
+SCRIPT
+    end
 
     openbsd1.vm.provision :chef_solo do |chef|
       setup_chefsolo(chef)
