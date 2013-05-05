@@ -21,16 +21,16 @@ describe 'openbsd::ipsec_initiator_test' do
   shared_examples_for 'ipsec{,_chef}.conf' do
     it 'should create /etc/ipsec{,_chef}.conf' do
       expect(chef_run).to create_file_with_content '/etc/ipsec.conf', 'include "/etc/ipsec_chef.conf"'
-      expect(chef_run).to create_file_with_content '/etc/ipsec_chef.conf', "# chefspec.local -> ipsec-gw.example.org
+      expect(chef_run).to create_file_with_content '/etc/ipsec_chef.conf', "# chefspec.local -> ipsec-gw1.example.org
 ike dynamic esp proto gre from 10.7.43.10/32 to 10.7.43.2/32 peer #{chef_run.node['openbsd']['ipsec']['gw_addr']} psk #{chef_run.node['openbsd']['ipsec']['psk']}"
     end
   end
 
   context 'without rdomain' do
     before do
-      Chef::Recipe.any_instance.stub(:data_bag_item).with('ipsec', 'ipsec-gw').and_return(
+      Chef::Recipe.any_instance.stub(:data_bag_item).with('ipsec', 'ipsec-gw1').and_return(
         "vpn1" => {
-          "ipsec-gw.example.org" => {
+          "ipsec-gw1.example.org" => {
             "lo1" => "10.7.43.2",
             "gre1" => "10.7.50.2"
           },
@@ -66,9 +66,9 @@ ike dynamic esp proto gre from 10.7.43.10/32 to 10.7.43.2/32 peer #{chef_run.nod
 
   context 'with rdomain 1' do
     before do
-      Chef::Recipe.any_instance.stub(:data_bag_item).with('ipsec', 'ipsec-gw').and_return(
+      Chef::Recipe.any_instance.stub(:data_bag_item).with('ipsec', 'ipsec-gw1').and_return(
         "vpn1" => {
-          "ipsec-gw.example.org" => {
+          "ipsec-gw1.example.org" => {
             "lo1" => "10.7.43.2",
             "gre1" => "10.7.50.2"
           },

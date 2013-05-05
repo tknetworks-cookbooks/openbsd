@@ -20,11 +20,11 @@ describe 'openbsd::ipsec_responder_test' do
 
   context 'without rdomain' do
     before do
-      chef_run.node.automatic_attrs['fqdn'] = 'ipsec-gw.example.org'
-      chef_run.node.automatic_attrs['hostname'] = 'ipsec-gw'
-      Chef::Recipe.any_instance.stub(:data_bag_item).with('ipsec', 'ipsec-gw').and_return(
+      chef_run.node.automatic_attrs['fqdn'] = 'ipsec-gw1.example.org'
+      chef_run.node.automatic_attrs['hostname'] = 'ipsec-gw1'
+      Chef::Recipe.any_instance.stub(:data_bag_item).with('ipsec', 'ipsec-gw1').and_return(
         "vpn1" => {
-          "ipsec-gw.example.org" => {
+          "ipsec-gw1.example.org" => {
             "lo1" => "10.7.43.2",
             "gre1" => "10.7.50.2"
           },
@@ -39,7 +39,7 @@ describe 'openbsd::ipsec_responder_test' do
 
     it 'should create /etc/ipsec{,_chef}.conf' do
       expect(chef_run).to create_file_with_content '/etc/ipsec.conf', 'include "/etc/ipsec_chef.conf"'
-      expect(chef_run).to create_file_with_content '/etc/ipsec_chef.conf', "# ipsec-gw.example.org -> chefspec.local
+      expect(chef_run).to create_file_with_content '/etc/ipsec_chef.conf', "# ipsec-gw1.example.org -> chefspec.local
 ike passive esp proto gre from 10.7.43.2/32 to 10.7.43.10/32 peer any psk #{chef_run.node['openbsd']['ipsec']['psk']}"
     end
 
