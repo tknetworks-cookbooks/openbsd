@@ -1,0 +1,22 @@
+{
+  "id": "ipsec-gw",
+  "carp0": {
+    "config": ["advbase 1 advskew 100 vhid 1 pass secret carpdev vlan100"],
+    "inet": "10.0.5.10 255.255.255.0",
+    "inet6": "2001:db8:6dc:7aa::10 64"
+  },
+  "carp1": {
+    "config": ["advbase 1 advskew 100 vhid 20 pass secret carpdev vlan101"],
+    "inet": "10.0.15.10 255.255.255.0",
+    "inet6": "2001:db8:6dc:7ff::10 96",
+    "extra_commands": ["route add 10.0.30.0/24 10.0.15.30"]
+  },
+  "gre100": {
+    "tunnel": "192.168.0.1 192.168.100.1",
+    "mtu": "1430",
+    "extra_commands": ["/sbin/route add -inet6 default ::1 -ifp gre0"]
+  },
+  "enc3": {
+    "rdomain": "1"
+  }
+}
