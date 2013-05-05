@@ -20,22 +20,18 @@ define :openbsd_interface,
        :dhcp    => false,
        :tunnel  => nil,
        :inner   => nil,
-       :config  => nil,
+       :mtu     => nil,
+       :config  => [],
        :rdomain => 0,
        :tunneldomain => 0,
        :extra_commands => [] do
 
-  Chef::Log.info params.inspect
   if node["platform"] != "openbsd"
     raise "openvpn_interface is only for OpenBSD"
   end
 
   if (not params[:name] =~ /^(gre|enc)/) && params[:inet].nil? && params[:inet6].nil?
     raise "ipv4 or ipv6 address required"
-  end
-
-  if params[:name] =~ /^gre/ && params[:inner].nil?
-    raise "inner address required"
   end
 
   begin
@@ -52,6 +48,7 @@ define :openbsd_interface,
             "inner"  => params[:inner],
             "rdomain" => params[:rdomain],
             "tunnel"  => params[:tunnel],
+            "mtu"     => params[:mtu],
             "config"  => params[:config],
             "tunneldomain"   => params[:tunneldomain],
             "extra_commands" => params[:extra_commands]
