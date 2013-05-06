@@ -16,4 +16,6 @@
 # must be set via role
 default["openbsd"]["ipsec"]["psk"] = "SECRET"
 default["openbsd"]["ipsec"]["gw_hostname"] = "ipsec-gw1"
+default["openbsd"]["ipsec"]["gw_fqdn"] = "ipsec-gw1.example.org"
 default["openbsd"]["ipsec"]["gw_addr"] = "192.168.67.2"
+default["openbsd"]["ipsec"]["is_gateway"] = false

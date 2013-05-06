@@ -128,9 +128,13 @@ define :openbsd_ipsec do
     }
 
     ipsec_conf.each do |conf|
-      my, remote = conf.last.partition { |k, v| k == node["fqdn"] }.map { |c| c.flatten }
+      # ゲートウェイが冗長構成になっている場合、ホスト名が必ずしも gw_hostname と一致しない。
+      # そこで特定のattributeがあればgw_hostnameの一致していると扱う。
+      my, remote = conf.last.partition { |k, v|
+        node["openbsd"]["ipsec"]["is_gateway"] ? k == node["openbsd"]["ipsec"]["gw_fqdn"] : k == node["fqdn"]
+      }.map { |c| c.flatten }
 
-      # 自分が含まれていない場合は飛ばす
+      # skip if not include myself
       if my.empty?
         next
       end
@@ -217,6 +221,6 @@ define :openbsd_ipsec do
       Chef::Log.info("No configure found for #{node['fqdn']}")
     end
   rescue => e
-    Chef::Log.info("Could not load data bag 'ipsec', #{gw_hostname}, this is optional, moving on... reason: #{e}")
+    Chef::Log.info("Could not load data bag 'ipsec', '#{gw_hostname}', this is optional, moving on... reason: #{e}")
   end
 end

@@ -1,5 +1,5 @@
 {
-  "id": "ipsec-gw",
+  "id": "ipsec-gw2",
   "carp0": {
     "config": ["advbase 1 advskew 100 vhid 1 pass secret carpdev vlan100"],
     "inet": "10.0.5.10 255.255.255.0",
@@ -12,7 +12,7 @@
     "extra_commands": ["route add 10.0.30.0/24 10.0.15.30"]
   },
   "gre100": {
-    "tunnel": "192.168.0.1 192.168.100.1",
+    "tunnel": "10.0.40.10 10.0.40.11",
     "mtu": "1430",
     "extra_commands": ["/sbin/route add -inet6 default ::1 -ifp gre0"]
   },

@@ -6,6 +6,7 @@ def setup_chefsolo(chef)
   chef.nfs = true
   chef.cookbooks_path = ".."
   chef.data_bags_path = "data_bags"
+  chef.roles_path = "roles"
   chef.add_recipe "openbsd"
 end
 
@@ -60,9 +61,9 @@ SCRIPT
 
     openbsd1.vm.provision :chef_solo do |chef|
       setup_chefsolo(chef)
+      chef.add_role "openbsd_ipsec_gw"
       chef.add_recipe "openbsd::carp"
       chef.add_recipe "openbsd::hostnameif_gw1_test"
-      chef.add_recipe "openbsd::ipsec_responder_test"
       chef.add_recipe "minitest-handler-cookbook"
     end
   end
@@ -78,9 +79,9 @@ SCRIPT
 
     openbsd1.vm.provision :chef_solo do |chef|
       setup_chefsolo(chef)
+      chef.add_role "openbsd_ipsec_gw"
       chef.add_recipe "openbsd::carp"
       chef.add_recipe "openbsd::hostnameif_gw2_test"
-      chef.add_recipe "openbsd::ipsec_responder_test"
       chef.add_recipe "minitest-handler-cookbook"
     end
   end
