@@ -45,10 +45,10 @@ describe_recipe 'openbsd::ipsec_responder_test' do
     ipsecchefconf = file("/etc/ipsec_chef.conf")
     ipsecchefconf.must_exist.with(:mode, "600").with(:owner, "root").with(:group, "wheel")
 
-    ipsecchefconf.must_include "# ipsec-gw.example.org -> vagrant-openbsd1
+    ipsecchefconf.must_include "# ipsec-gw1.example.org -> vagrant-openbsd1
 ike passive esp proto gre from 10.7.43.2/32 to 10.7.43.10/32 peer any psk #{node['openbsd']['ipsec']['psk']}"
 
-    ipsecchefconf.must_include "# ipsec-gw.example.org -> vagrant-openbsd2
+    ipsecchefconf.must_include "# ipsec-gw1.example.org -> vagrant-openbsd2
 ike passive esp proto gre from 10.7.43.3/32 to 10.7.43.11/32 peer any psk #{node['openbsd']['ipsec']['psk']}"
   end
 

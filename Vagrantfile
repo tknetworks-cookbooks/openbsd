@@ -6,6 +6,7 @@ def setup_chefsolo(chef)
   chef.nfs = true
   chef.cookbooks_path = ".."
   chef.data_bags_path = "data_bags"
+  chef.roles_path = "roles"
   chef.add_recipe "openbsd"
 end
 
@@ -49,14 +50,38 @@ SCRIPT
     end
   end
 
-  config.vm.define :'ipsec-gw' do |openbsd1|
-    openbsd1.vm.hostname = "ipsec-gw.example.org"
+  config.vm.define :'ipsec-gw1' do |openbsd1|
+    openbsd1.vm.hostname = "ipsec-gw1.example.org"
+
+    # em1
     openbsd1.vm.network :private_network, ip: "192.168.67.2", netmask: "255.255.255.0"
+
+    # em2
+    openbsd1.vm.network :private_network, ip: "10.0.67.2", netmask: "255.255.255.0"
 
     openbsd1.vm.provision :chef_solo do |chef|
       setup_chefsolo(chef)
+      chef.add_role "openbsd_ipsec_gw"
       chef.add_recipe "openbsd::carp"
-      chef.add_recipe "openbsd::ipsec_responder_test"
+      chef.add_recipe "openbsd::hostnameif_gw1_test"
+      chef.add_recipe "minitest-handler-cookbook"
+    end
+  end
+
+  config.vm.define :'ipsec-gw2' do |openbsd1|
+    openbsd1.vm.hostname = "ipsec-gw2.example.org"
+
+    # em1
+    openbsd1.vm.network :private_network, ip: "192.168.67.3", netmask: "255.255.255.0"
+
+    # em2
+    openbsd1.vm.network :private_network, ip: "10.0.67.3", netmask: "255.255.255.0"
+
+    openbsd1.vm.provision :chef_solo do |chef|
+      setup_chefsolo(chef)
+      chef.add_role "openbsd_ipsec_gw"
+      chef.add_recipe "openbsd::carp"
+      chef.add_recipe "openbsd::hostnameif_gw2_test"
       chef.add_recipe "minitest-handler-cookbook"
     end
   end

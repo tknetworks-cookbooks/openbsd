@@ -1,7 +1,7 @@
 {
-  "id": "ipsec-gw",
+  "id": "ipsec-gw1",
   "vpn1": {
-    "ipsec-gw.example.org": {
+    "ipsec-gw1.example.org": {
       "lo1": "10.7.43.2",
       "gre1": "10.7.50.2"
     },
@@ -13,7 +13,7 @@
     }
   },
   "vpn2": {
-    "ipsec-gw.example.org": {
+    "ipsec-gw1.example.org": {
       "lo2": "10.7.43.3",
       "gre2": "10.7.50.3"
     },

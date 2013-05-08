@@ -1,3 +1,6 @@
+<%- @config.each do |conf| %>
+<%= conf %>
+<%- end %>
 <%- if @rdomain != 0 %>
 rdomain <%= @rdomain %>
 <%- end %>
@@ -6,6 +9,9 @@ tunneldomain <%= @tunneldomain %>
 <%- end %>
 <%- if @tunnel %>
 tunnel <%= @tunnel %>
+<%- end %>
+<%- if @mtu %>
+mtu <%= @mtu %>
 <%- end %>
 <%- if @dhcp %>
 dhcp

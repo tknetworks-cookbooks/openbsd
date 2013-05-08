@@ -18,28 +18,10 @@ require 'spec_helper'
 describe 'openbsd::ipsec_responder_test' do
   include_context 'openbsd'
 
-  context 'without rdomain' do
-    before do
-      chef_run.node.automatic_attrs['fqdn'] = 'ipsec-gw.example.org'
-      chef_run.node.automatic_attrs['hostname'] = 'ipsec-gw'
-      Chef::Recipe.any_instance.stub(:data_bag_item).with('ipsec', 'ipsec-gw').and_return(
-        "vpn1" => {
-          "ipsec-gw.example.org" => {
-            "lo1" => "10.7.43.2",
-            "gre1" => "10.7.50.2"
-          },
-          "chefspec.local" => {
-            "lo1" => "10.7.43.10",
-            "gre1" => "10.7.50.10"
-          }
-        }
-      )
-      chef_run.converge('openbsd::ipsec_responder_test')
-    end
-
+  shared_examples_for 'ipsec-gw' do
     it 'should create /etc/ipsec{,_chef}.conf' do
       expect(chef_run).to create_file_with_content '/etc/ipsec.conf', 'include "/etc/ipsec_chef.conf"'
-      expect(chef_run).to create_file_with_content '/etc/ipsec_chef.conf', "# ipsec-gw.example.org -> chefspec.local
+      expect(chef_run).to create_file_with_content '/etc/ipsec_chef.conf', "# ipsec-gw1.example.org -> chefspec.local
 ike passive esp proto gre from 10.7.43.2/32 to 10.7.43.10/32 peer any psk #{chef_run.node['openbsd']['ipsec']['psk']}"
     end
 
@@ -61,5 +43,49 @@ ike passive esp proto gre from 10.7.43.2/32 to 10.7.43.10/32 peer any psk #{chef
     it 'should enable ipsec' do
       expect(chef_run).to enable_service 'ipsec'
     end
+  end
+
+  context 'gw_hostname equals hostname' do
+    before do
+      chef_run.node.automatic_attrs['fqdn'] = 'ipsec-gw1.example.org'
+      chef_run.node.automatic_attrs['hostname'] = 'ipsec-gw1'
+      Chef::Recipe.any_instance.stub(:data_bag_item).with('ipsec', 'ipsec-gw1').and_return(
+        "vpn1" => {
+          "ipsec-gw1.example.org" => {
+            "lo1" => "10.7.43.2",
+            "gre1" => "10.7.50.2"
+          },
+          "chefspec.local" => {
+            "lo1" => "10.7.43.10",
+            "gre1" => "10.7.50.10"
+          }
+        }
+      )
+      chef_run.converge('role[openbsd_ipsec_gw]')
+    end
+
+    it_behaves_like 'ipsec-gw'
+  end
+
+  context 'gw_hostname is ipsec-gw1 but hostname is ipsec-gw2' do
+    before do
+      chef_run.node.automatic_attrs['fqdn'] = 'ipsec-gw2.example.org'
+      chef_run.node.automatic_attrs['hostname'] = 'ipsec-gw2'
+      Chef::Recipe.any_instance.stub(:data_bag_item).with('ipsec', 'ipsec-gw1').and_return(
+        "vpn1" => {
+          "ipsec-gw1.example.org" => {
+            "lo1" => "10.7.43.2",
+            "gre1" => "10.7.50.2"
+          },
+          "chefspec.local" => {
+            "lo1" => "10.7.43.10",
+            "gre1" => "10.7.50.10"
+          }
+        }
+      )
+      chef_run.converge('role[openbsd_ipsec_gw]')
+    end
+
+    it_behaves_like 'ipsec-gw'
   end
 end

@@ -13,8 +13,21 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-# must be set via role
-default["openbsd"]["ipsec"]["psk"] = "SECRET"
-default["openbsd"]["ipsec"]["gw_hostname"] = "ipsec-gw1"
-default["openbsd"]["ipsec"]["gw_fqdn"] = "ipsec-gw1.example.org"
-default["openbsd"]["ipsec"]["gw_addr"] = "192.168.67.2"
+
+begin
+  hostname_ifs = data_bag_item('openbsd_hostnameif', node['hostname'])
+rescue => e
+  Chef::Log.info("Cound load data_bag_item openbsd_hostnameif::#{node['hostname']}. #{e}")
+end
+
+if hostname_ifs
+  hostname_ifs.each do |ifn, params|
+    next if ifn == 'id'
+
+    openbsd_interface ifn do
+      params.each do |k, v|
+        send(k, v)
+      end
+    end
+  end
+end

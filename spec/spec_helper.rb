@@ -25,4 +25,8 @@ shared_context 'openbsd' do
       node.set['etc']['passwd']['root']['gid'] = 0
     end
   }
+
+  before do
+    Chef::Config[:role_path] = ::File.expand_path('../../roles', __FILE__)
+  end
 end
