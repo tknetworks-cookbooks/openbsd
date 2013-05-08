@@ -44,7 +44,7 @@ describe_recipe 'openbsd::ipsec_initiator_nordomain_test' do
   it 'creates ipsec_chef.conf' do
     ipsecchefconf = file("/etc/ipsec_chef.conf")
     ipsecchefconf.must_exist.with(:mode, "600").with(:owner, "root").with(:group, "wheel")
-    ipsecchefconf.must_include "# vagrant-openbsd2 -> ipsec-gw.example.org
+    ipsecchefconf.must_include "# vagrant-openbsd2 -> ipsec-gw1.example.org
 ike dynamic esp proto gre from 10.7.43.11/32 to 10.7.43.3/32 peer #{node['openbsd']['ipsec']['gw_addr']} psk #{node['openbsd']['ipsec']['psk']}"
   end
 
