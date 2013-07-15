@@ -100,16 +100,21 @@ end
 
 define :openbsd_reload_ipsec_conf, :rdomain => 0 do
   rdomain = params[:rdomain]
-  execute "#{params[:name]}-rdomain-#{params[:rdomain]}" do
-    extend Chef::Mixin::ShellOut
-    if rdomain == 0
-      command "/sbin/ipsecctl -f /etc/ipsec.conf"
-    else
-      command "/sbin/route -T #{rdomain} exec /sbin/ipsecctl -f /etc/ipsec.conf"
-    end
-    action :nothing
-    only_if do
-      shell_out("/usr/bin/pgrep isakmpd", :env => nil).status.success?
+
+  begin
+    resources("execute[#{params[:name]}-rdomain-#{params[:rdomain]}]")
+  rescue
+    execute "#{params[:name]}-rdomain-#{params[:rdomain]}" do
+      extend Chef::Mixin::ShellOut
+      if rdomain == 0
+        command "/sbin/ipsecctl -f /etc/ipsec.conf"
+      else
+        command "/sbin/route -T #{rdomain} exec /sbin/ipsecctl -f /etc/ipsec.conf"
+      end
+      action :nothing
+      only_if do
+        shell_out("/usr/bin/pgrep isakmpd", :env => nil).status.success?
+      end
     end
   end
 end
