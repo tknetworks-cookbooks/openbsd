@@ -69,6 +69,7 @@ define :openbsd_ike,
        :from  => nil,
        :to    => nil,
        :peer  => 'any',
+       :rdomain => 0,
        :psk   => nil do
 
   if %w{mode from to psk}.any? { |k| params[k.to_sym].nil? }
@@ -91,7 +92,7 @@ define :openbsd_ike,
             "rules" => []
           )
           source "ipsec_chef.conf.erb"
-          notifies :run, "execute[reload-ipsec-conf]"
+          notifies :run, "execute[reload-ipsec-conf-rdomain-#{params[:rdomain]}]"
         end
   end
   t.variables["rules"].push params
@@ -99,7 +100,7 @@ end
 
 define :openbsd_reload_ipsec_conf, :rdomain => 0 do
   rdomain = params[:rdomain]
-  execute params[:name] do
+  execute "#{params[:name]}-rdomain-#{params[:rdomain]}" do
     extend Chef::Mixin::ShellOut
     if rdomain == 0
       command "/sbin/ipsecctl -f /etc/ipsec.conf"
@@ -149,6 +150,9 @@ define :openbsd_ipsec do
       remote_gre = get_gre(remote.last)
       remote_lo = get_loopback(remote.last)
       has_rdomain = my.last.has_key?("rdomain")
+      unless has_rdomain
+        my.last["rdomain"] = 0
+      end
 
       Chef::Log.info "configuring #{my.first} -> #{remote.first}"
 
@@ -156,7 +160,7 @@ define :openbsd_ipsec do
       mypeer = params[:peer]
 
       openbsd_reload_ipsec_conf "reload-ipsec-conf" do
-        rdomain my.last["rdomain"] if my.last["rdomain"]
+        rdomain my.last["rdomain"]
       end
 
       openbsd_interface my_lo.first do
@@ -175,6 +179,7 @@ define :openbsd_ipsec do
         to    "#{remote_lo.last}/32"
         psk   node["openbsd"]["ipsec"]["psk"]
         peer  mypeer
+        rdomain my.last["rdomain"]
       end
 
       if has_rdomain

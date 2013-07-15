@@ -85,6 +85,10 @@ ike dynamic esp proto gre from 10.7.43.10/32 to 10.7.43.2/32 peer #{chef_run.nod
 
     it_behaves_like 'ipsec{,_chef}.conf'
 
+    it 'should execute in rdomain 1' do
+      expect(chef_run).to execute_command('/sbin/route -T 1 exec /sbin/ipsecctl -f /etc/ipsec.conf')
+    end
+
     it 'should create /etc/hostname.lo1' do
       expect(chef_run).to create_file_with_content '/etc/hostname.lo1', "rdomain 1
 inet 10.7.43.10"

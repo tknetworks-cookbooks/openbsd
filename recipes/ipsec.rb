@@ -23,10 +23,12 @@ sysctl "net.inet.gre.allow" do
   immediately true
 end
 
+openbsd_reload_ipsec_conf "reload-ipsec-conf"
+
 template "/etc/ipsec.conf" do
   source "ipsec.conf.erb"
   mode 0600
   owner "root"
   group node["etc"]["passwd"]["root"]["gid"]
-  notifies :run, "execute[reload-ipsec-conf]"
+  notifies :run, "execute[reload-ipsec-conf-rdomain-0]"
 end
