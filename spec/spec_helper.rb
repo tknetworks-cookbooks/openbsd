@@ -18,8 +18,7 @@ require 'chefspec'
 shared_context 'openbsd' do
   let (:chef_run) {
     ChefSpec::ChefRunner.new(
-      :step_into => %w{openbsd_ipsec openbsd_interface openbsd_ike openbsd_reload_ipsec_conf},
-      :log_level => :debug
+      :step_into => %w{openbsd_ipsec openbsd_interface openbsd_ike openbsd_reload_ipsec_conf}
     ) do |node|
       node.automatic_attrs['platform'] = 'openbsd'
       node.set['etc']['passwd']['root']['gid'] = 0
