@@ -217,12 +217,20 @@ define :openbsd_ipsec do
           end
         end
       else
-        service "isakmpd" do
-          parameters({:flags => "-K -v"})
-          action [:enable, :start]
+        begin
+          resources('service[isakmpd]')
+        rescue
+          service "isakmpd" do
+            parameters({:flags => "-K -v"})
+            action [:enable, :start]
+          end
         end
-        service "ipsec" do
-          action :enable
+        begin
+          resources('service[ipsec]')
+        rescue
+          service "ipsec" do
+            action :enable
+          end
         end
       end
     end
